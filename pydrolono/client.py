@@ -2,8 +2,9 @@
 
 import requests
 import logging
+import os
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 import pandas as pd
 from datetime import datetime
 
@@ -204,13 +205,50 @@ class ObservationsRequest:
     timeOffset: Optional[str] = None
     correctionTypes: Optional[str] = None
 
+def load_api_key(api_key: Optional[Union[str, None]] = None, env_var: str = "NVE_API_KEY") -> str:
+    """
+    Load the API key from various sources in order of precedence:
+    1. Directly provided api_key parameter
+    2. Environment variable
+    
+    Args:
+        api_key: Optional API key provided directly
+        env_var: Name of environment variable to check for API key
+        
+    Returns:
+        str: The API key
+        
+    Raises:
+        ValueError: If no API key could be found
+    """
+    if api_key:
+        return api_key
+        
+    env_key = os.getenv(env_var)
+    if env_key:
+        return env_key
+        
+    raise ValueError(
+        f"No API key provided. Either pass it directly or set it in the {env_var} environment variable"
+    )
+
 # Define API Client Class
 class NVEHydroAPIClient:
-    def __init__(self, api_key: str, server_url: str = "https://hydapi.nve.no/api/v1"):
+    def __init__(self, api_key: Optional[str] = None, server_url: str = "https://hydapi.nve.no/api/v1"):
+        """
+        Initialize the NVE Hydrology API client.
+        
+        Args:
+            api_key: Optional API key. If not provided, will attempt to load from environment
+            server_url: Base URL for the API
+            
+        Raises:
+            ValueError: If no API key could be found
+        """
         self.server_url = server_url
         self.headers = {
             "accept": "application/json",
-            "X-API-Key": api_key
+            "X-API-Key": load_api_key(api_key)
         }
 
     def _get(self, endpoint: str, params: dict = None) -> Optional[Dict[str, Any]]:
