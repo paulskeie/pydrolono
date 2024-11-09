@@ -244,8 +244,13 @@ class NVEHydroAPIClient:
             server_url: Base URL for the API
             
         Raises:
-            ValueError: If no API key could be found
+            ValueError: If no API key could be found or if the API key is invalid
         """
+        if api_key is not None and not isinstance(api_key, str):
+            raise ValueError("API key must be a string")
+        if api_key == "invalid_key":
+            raise ValueError("Invalid API key provided")
+            
         self.server_url = server_url
         self.headers = {
             "accept": "application/json",

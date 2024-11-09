@@ -15,8 +15,11 @@ def client():
 
 def test_client_initialization():
     """Test client initialization with invalid API key."""
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid API key provided"):
         NVEHydroAPIClient(api_key="invalid_key")
+    
+    with pytest.raises(ValueError, match="API key must be a string"):
+        NVEHydroAPIClient(api_key=123)
 
 def test_get_parameters(client):
     """Test parameters endpoint."""
@@ -65,8 +68,11 @@ def test_invalid_station(client):
 
 def test_invalid_api_key():
     """Test handling of invalid API key."""
-    with pytest.raises(ValueError):
-        NVEHydroAPIClient(api_key=None)
+    with pytest.raises(ValueError, match="No API key provided"):
+        # Ensure environment variable is not set
+        with pytest.MonkeyPatch() as mp:
+            mp.delenv("NVE_API_KEY", raising=False)
+            NVEHydroAPIClient(api_key=None)
 
 def test_observations_to_dataframe(client):
     """Test conversion of observations to DataFrame."""
