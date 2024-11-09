@@ -1,6 +1,11 @@
 import pytest
+import pandas as pd
 from datetime import datetime, timedelta
-from pydrolono.client import NVEHydroAPIClient, ObservationsRequest
+from pydrolono.client import (
+    NVEHydroAPIClient, 
+    ObservationsRequest,
+    observations_to_dataframe
+)
 from pydrolono.exceptions import ValidationError, APIError, AuthenticationError
 
 @pytest.fixture
