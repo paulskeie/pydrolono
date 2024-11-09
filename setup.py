@@ -10,7 +10,7 @@ setup(
     name="pydrolono",
     version="0.1.0",
     author="Paul Skeie",
-    author_email="paul.skeie@example.com", 
+    author_email="paul.skeie@gmail.com", 
     description="A Python client for accessing hydrological data from NVE's Hydrology API",
     long_description=long_description,
     long_description_content_type="text/markdown",
