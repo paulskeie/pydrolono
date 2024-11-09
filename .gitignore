@@ -22,3 +22,7 @@ env/
 
 # Misc
 .DS_Store
+
+# Coverage
+.coverage
+htmlcov/
