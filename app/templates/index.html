@@ -68,14 +68,18 @@
                         return acc;
                     }, {});
 
-                    // Convert to Select2 format
-                    return {
-                        results: Object.entries(grouped).map(([river, stations]) => ({
+                    // Filter out empty river groups and sort alphabetically
+                    const results = Object.entries(grouped)
+                        .filter(([_, stations]) => stations.length > 0)
+                        .sort(([a], [b]) => a.localeCompare(b))
+                        .map(([river, stations]) => ({
                             text: river,
-                            children: stations
-                        }))
-                    };
-                }
+                            children: stations.sort((a, b) => a.text.localeCompare(b.text))
+                        }));
+
+                    return { results };
+                },
+                cache: true
             }
         });
 
