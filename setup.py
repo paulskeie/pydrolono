@@ -9,12 +9,12 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="pydrolono",
     version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A Python client for the NVE Hydrology API",
+    author="Paul Skeie",
+    author_email="paul.skeie@example.com", 
+    description="A Python client for accessing hydrological data from NVE's Hydrology API",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/pydrolono",
+    url="https://github.com/paulskeie/pydrolono",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
