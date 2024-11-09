@@ -52,18 +52,44 @@ def test_observations():
     start_time = end_time - timedelta(days=1)
     reference_time = f"{start_time.isoformat()}/{end_time.isoformat()}"
     
-    # Test multiple stations and parameters
-    test_cases = [
-        ("12.209.0", "1000", "Vannstand"),  # Urula - Water level
-        ("12.209.0", "1001", "Vannføring"),  # Urula - Water flow
-        ("12.209.0", "1003", "Vanntemperatur"),  # Urula - Water temperature
+    # Test cases with station and desired parameters
+    station_id = "12.209.0"  # Urula station
+    parameters_to_test = [
+        ("1000", "Vannstand"),
+        ("1001", "Vannføring"),
+        ("1003", "Vanntemperatur")
     ]
     
     print(f"\n=== Testing Observations Endpoint ===")
-    print(f"Time range: {reference_time}\n")
+    print(f"Time range: {reference_time}")
+    print(f"Testing station: {station_id}\n")
     
-    for station_id, parameter, param_name in test_cases:
-        print(f"Testing station {station_id} for {param_name} (parameter {parameter})")
+    # First get station details to check available parameters
+    stations = client.get_stations(active=1)
+    if not stations:
+        print("Failed to retrieve station information")
+        return
+        
+    station = next((s for s in stations.data if s.stationId == station_id), None)
+    if not station:
+        print(f"Station {station_id} not found")
+        return
+        
+    # Get available series for the station
+    series_list = station.seriesList
+    if not series_list:
+        print(f"No series information available for station {station_id}")
+        return
+        
+    # Parse series list - it's a comma-separated string of parameter IDs
+    available_parameters = set(series_list.split(','))
+    
+    for parameter, param_name in parameters_to_test:
+        if parameter not in available_parameters:
+            print(f"\nSkipping {param_name} (parameter {parameter}) - not available at this station")
+            continue
+            
+        print(f"\nTesting {param_name} (parameter {parameter})")
         
         request = ObservationsRequest(
             stationId=station_id,
