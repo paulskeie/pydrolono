@@ -1,11 +1,17 @@
 
 
 import requests
+import logging
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import pandas as pd
+from datetime import datetime
 
-# Define Data Classes Based on API Schemas
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Define Data Classes Based on API Schemas with proper documentation
 @dataclass
 class Parameter:
     parameter: int
@@ -53,134 +59,6 @@ class ObservationResult:
     itemCount: int
     data: List[ObservationData]  # List of ObservationData items
 
-@dataclass
-class Station:
-    stationId: Optional[str]
-    stationName: Optional[str]
-    latitude: float
-    longitude: float
-    utmEast_Z33: Optional[int]
-    utmNorth_Z33: Optional[int]
-    masl: Optional[int]
-    riverName: Optional[str]
-    councilNumber: Optional[str]
-    councilName: Optional[str]
-    countyName: Optional[str]
-    stationTypeName: Optional[str]
-    stationStatusName: Optional[str]
-    drainageBasinArea: Optional[float]
-    drainageBasinAreaNorway: Optional[float]
-    gradient1085: Optional[float]
-    gradientBasin: Optional[float]
-    gradientRiver: Optional[float]
-    lengthKmBasin: Optional[float]
-    lengthKmRiver: Optional[float]
-    percentAgricul: Optional[float]
-    percentBog: Optional[float]
-    percentEffBog: Optional[float]
-    percentEffLake: Optional[float]
-    percentForest: Optional[float]
-    percentGlacier: Optional[float]
-    percentLake: Optional[float]
-    percentMountain: Optional[float]
-    percentUrban: Optional[float]
-    stationStatusName: Optional[str]
-    catchmentRegTypeName: Optional[str]
-    owner: Optional[str]
-    annualRunoff: Optional[float]
-    specificDischarge: Optional[float]
-    regulationArea: Optional[float]
-    areaReservoirs: Optional[float]
-    volumeReservoirs: Optional[float]
-    numberReservoirs: Optional[int]
-    firstYearRegulation: Optional[int]
-    councilName: Optional[str]
-    councilNumber: Optional[str]
-    countyName: Optional[str]
-    drainageBasinArea: Optional[float]
-    drainageBasinKey: Optional[str]
-    gradientBasin: Optional[float]
-    riverName: Optional[str]
-    hierarchy: Optional[str]
-    lakeArea: Optional[float]
-    lakeName: Optional[str]
-    lakeNo: Optional[str]
-    regineNo: Optional[str]
-    reservoirNo: Optional[str]
-    reservoirName: Optional[str]
-    heightMinimum: Optional[float]
-    heightHypso10: Optional[float]
-    heightHypso20: Optional[float]
-    heightHypso30: Optional[float]
-    heightHypso40: Optional[float]
-    heightHypso50: Optional[float]
-    heightHypso60: Optional[float]
-    heightHypso70: Optional[float]
-    heightHypso80: Optional[float]
-    heightHypso90: Optional[float]
-    heightMaximum: Optional[float]
-    utmZoneGravi: Optional[int]
-    utmEastGravi: Optional[int]
-    utmNorthGravi: Optional[int]
-    utmZoneInlet: Optional[int]
-    utmEastInlet: Optional[int]
-    utmNorthInlet: Optional[int]
-    utmZoneOutlet: Optional[int]
-    utmEastOutlet: Optional[int]
-    utmNorthOutlet: Optional[int]
-    regulationPartReservoirs: Optional[float]
-    transferAreaIn: Optional[float]
-    transferAreaOut: Optional[float]
-    reservoirAreaIn: Optional[float]
-    reservoirAreaOut: Optional[float]
-    reservoirVolumeIn: Optional[float]
-    reservoirVolumeOut: Optional[float]
-    remainingArea: Optional[float]
-    qNumberOfYears: Optional[int]
-    qStartYear: Optional[int]
-    qEndYear: Optional[int]
-    qm: Optional[float]
-    q5: Optional[float]
-    q10: Optional[float]
-    q20: Optional[float]
-    q50: Optional[float]
-    q80: Optional[float]
-    q90: Optional[float]
-    q95: Optional[float]
-    q99: Optional[float]
-    q100: Optional[float]
-    hm: Optional[float]
-    h5: Optional[float]
-    h10: Optional[float]
-    h20: Optional[float]
-    h50: Optional[float]
-    h80: Optional[float]
-    h90: Optional[float]
-    h95: Optional[float]
-    h99: Optional[float]
-    h100: Optional[float]
-    culQm: Optional[float]
-    culQ5: Optional[float]
-    culQ10: Optional[float]
-    culQ20: Optional[float]
-    culQ50: Optional[float]
-    culQ80: Optional[float]
-    culQ90: Optional[float]
-    culQ95: Optional[float]
-    culQ99: Optional[float]
-    culQ100: Optional[float]
-    culHm: Optional[float]
-    culH5: Optional[float]
-    culH10: Optional[float]
-    culH20: Optional[float]
-    culH50: Optional[float]
-    culH80: Optional[float]
-    culH90: Optional[float]
-    culH95: Optional[float]
-    culH99: Optional[float]
-    culH100: Optional[float]
-    seriesList: Optional[str]
-    
 @dataclass
 class Station:
     stationId: Optional[str] = None
@@ -335,14 +213,26 @@ class NVEHydroAPIClient:
             "X-API-Key": api_key
         }
 
-    def _get(self, endpoint: str, params: dict = None):
+    def _get(self, endpoint: str, params: dict = None) -> Optional[Dict[str, Any]]:
+        """
+        Make a GET request to the API endpoint.
+        
+        Args:
+            endpoint: API endpoint path
+            params: Optional query parameters
+            
+        Returns:
+            JSON response as dictionary or None if request fails
+        """
         url = f"{self.server_url}{endpoint}"
         try:
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            print(f"Error occurred: {e}")
+            logger.error(f"GET request failed for {url}: {str(e)}")
+            if hasattr(e.response, 'text'):
+                logger.error(f"Response text: {e.response.text}")
             return None
 
         
@@ -459,15 +349,23 @@ def get_observations(client, stationIds, parameters, referenceTime, resolutionTi
 
 
 
-def observations_to_dataframe(observations):
+def observations_to_dataframe(observations: List[ObservationData]) -> pd.DataFrame:
     """
     Converts a list of ObservationData into a pandas DataFrame with timestamp as the index.
 
-    Parameters:
-    - observations: List of ObservationData instances
+    Args:
+        observations: List of ObservationData instances containing hydrology observations
 
     Returns:
-    - A pandas DataFrame with timestamps as the index and station-parameter combinations as columns.
+        pd.DataFrame: DataFrame with timestamps as index and station-parameter combinations as columns.
+                     Each column name is formatted as 'station_name_parameter_name'
+                     
+    Example:
+        >>> df = observations_to_dataframe(observations)
+        >>> print(df.head())
+                            Station1_WaterLevel  Station2_Temperature
+        2024-01-01 00:00:00              1.2                   15.5
+        2024-01-01 01:00:00              1.3                   15.7
     """
     data = {}
 
