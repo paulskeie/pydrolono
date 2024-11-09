@@ -53,6 +53,12 @@
                 url: '/api/stations',
                 dataType: 'json',
                 delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term,
+                        page: params.page
+                    };
+                },
                 processResults: function(data) {
                     // Group stations by river
                     const grouped = data.reduce((acc, station) => {

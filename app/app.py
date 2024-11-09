@@ -16,7 +16,7 @@ def index():
 
 @app.route('/api/stations')
 def get_stations():
-    search_term = flask_request.args.get('search', '').lower()
+    search_term = flask_request.args.get('term', flask_request.args.get('q', '')).lower()
     
     stations = client.get_stations(active=1)
     if stations and stations.data:
