@@ -56,7 +56,7 @@ def test_observations():
     test_cases = [
         ("12.209.0", "1000", "Vannstand"),  # Urula - Water level
         ("12.209.0", "1001", "Vannføring"),  # Urula - Water flow
-        ("2.725.0", "1003", "Vanntemperatur"),  # Elvåga - Water temperature
+        ("12.209.0", "1003", "Vanntemperatur"),  # Urula - Water temperature
     ]
     
     print(f"\n=== Testing Observations Endpoint ===")
