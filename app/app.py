@@ -16,8 +16,11 @@ def index():
 
 @app.route('/api/stations')
 def get_stations():
+    search_term = flask_request.args.get('search', '').lower()
+    
     stations = client.get_stations(active=1)
     if stations and stations.data:
+        # Filter stations that have water level or discharge measurements
         station_list = [
             {
                 'id': station.stationId,
@@ -25,12 +28,22 @@ def get_stations():
                 'latitude': station.latitude,
                 'longitude': station.longitude,
                 'elevation': station.masl,
-                'river': station.riverName
+                'river': station.riverName or 'Other'
             }
             for station in stations.data
             if station.seriesList and 
             any(param in str(station.seriesList) for param in ['1000', '1001'])
         ]
+        
+        # Apply search filter if search term is provided
+        if search_term:
+            station_list = [
+                station for station in station_list
+                if search_term in station['name'].lower() or
+                   search_term in station['id'].lower() or
+                   search_term in station['river'].lower()
+            ]
+            
         return jsonify(station_list)
     return jsonify([])
 
