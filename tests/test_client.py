@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime, timedelta
 from pydrolono.client import NVEHydroAPIClient, ObservationsRequest
-from pydrolono.exceptions import ValidationError, APIError
+from pydrolono.exceptions import ValidationError, APIError, AuthenticationError
 
 @pytest.fixture
 def client():

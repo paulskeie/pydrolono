@@ -6,6 +6,7 @@ import os
 from dataclasses import dataclass
 from typing import List, Optional, Dict, Any, Union
 import pandas as pd
+from pydrolono.exceptions import APIError, AuthenticationError
 from datetime import datetime
 
 # Configure logging
