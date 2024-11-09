@@ -13,9 +13,19 @@ def test_api_connection():
     parameters = client.get_parameters()
     if parameters:
         print(f"Successfully retrieved {parameters.itemCount} parameters")
-        print("\nFirst 5 parameters:")
-        for param in parameters.data[:5]:
-            print(f"- {param.parameter}: {param.parameterName} ({param.unit})")
+        print("\nCommon measurement parameters:")
+        common_params = [
+            (0, "Nedbør"),
+            (1000, "Vannstand"),
+            (1001, "Vannføring"),
+            (1003, "Vanntemperatur")
+        ]
+        for param_id, name in common_params:
+            param = next((p for p in parameters.data if p.parameter == param_id), None)
+            if param:
+                print(f"- {param.parameter}: {param.parameterName} ({param.unit})")
+            else:
+                print(f"- {param_id}: Not found")
     else:
         print("Failed to retrieve parameters")
 
@@ -34,45 +44,53 @@ def test_stations():
         print("Failed to retrieve stations")
 
 def test_observations():
-    """Test observations retrieval"""
+    """Test observations retrieval for multiple stations and parameters"""
     client = NVEHydroAPIClient()
     
-    # Example: Get last 24 hours of data for a specific station
+    # Example: Get last 24 hours of data
     end_time = datetime.now()
     start_time = end_time - timedelta(days=1)
     reference_time = f"{start_time.isoformat()}/{end_time.isoformat()}"
     
-    # Test station: 12.209.0 - Grønlivatn
-    station_id = "12.209.0"
-    # Parameter 1000 - Water level
-    parameter = "1000"
+    # Test multiple stations and parameters
+    test_cases = [
+        ("12.209.0", "1000", "Vannstand"),  # Urula - Water level
+        ("12.209.0", "1001", "Vannføring"),  # Urula - Water flow
+        ("2.725.0", "1003", "Vanntemperatur"),  # Elvåga - Water temperature
+    ]
     
     print(f"\n=== Testing Observations Endpoint ===")
-    print(f"Querying station {station_id} for parameter {parameter}")
-    print(f"Time range: {reference_time}")
+    print(f"Time range: {reference_time}\n")
     
-    request = ObservationsRequest(
-        stationId=station_id,
-        parameter=parameter,
-        resolutionTime="60",  # hourly data
-        referenceTime=reference_time
-    )
-    
-    result = client.get_observations(request)
-    if result:
-        print("\nSuccessfully retrieved observations")
-        print(f"Total data points: {result.data[0].observationCount}")
+    for station_id, parameter, param_name in test_cases:
+        print(f"Testing station {station_id} for {param_name} (parameter {parameter})")
         
-        # Convert to DataFrame for better visualization
-        df = observations_to_dataframe(result.data)
-        print("\nData sample:")
-        print(df.head())
+        request = ObservationsRequest(
+            stationId=station_id,
+            parameter=parameter,
+            resolutionTime="60",  # hourly data
+            referenceTime=reference_time
+        )
         
-        # Basic statistics
-        print("\nBasic statistics:")
-        print(df.describe())
-    else:
-        print("Failed to retrieve observations")
+        result = client.get_observations(request)
+        if result and result.data:
+            print(f"✓ Successfully retrieved {result.data[0].observationCount} observations")
+            
+            # Convert to DataFrame for better visualization
+            df = observations_to_dataframe(result.data)
+            if not df.empty:
+                print("\nLatest measurements:")
+                print(df.tail(3))
+                
+                # Basic statistics
+                stats = df.describe()
+                print("\nSummary statistics:")
+                print(f"Mean: {stats.iloc[1].iloc[0]:.2f}")
+                print(f"Min:  {stats.iloc[3].iloc[0]:.2f}")
+                print(f"Max:  {stats.iloc[7].iloc[0]:.2f}")
+            print("\n" + "-"*50 + "\n")
+        else:
+            print(f"✗ Failed to retrieve observations\n")
 
 if __name__ == "__main__":
     test_api_connection()
