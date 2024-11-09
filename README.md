@@ -46,14 +46,9 @@ if stations:
 ### Get Observations
 
 ```python
-from datetime import datetime, timedelta
 from pydrolono.client import ObservationsRequest
 
-# Get last 24 hours of data
-end_time = datetime.now()
-start_time = end_time - timedelta(days=1)
-reference_time = f"{start_time.isoformat()}/{end_time.isoformat()}"
-
+# Get data from the major flooding event in Voss, October 2014
 request = ObservationsRequest(
     stationId="62.5.0",    # Bulken station in Vossovassdraget
     parameter="1000",      # Water level
@@ -62,6 +57,12 @@ request = ObservationsRequest(
 )
 
 result = client.get_observations(request)
+if result and result.data:
+    print(f"Station: {result.data[0].stationName}")
+    print(f"River: {result.data[0].stationId} - Vossovassdraget")
+    print(f"Location: 60.63°N, 6.29°E")
+    print(f"Elevation: 51 meters above sea level")
+    print(f"Retrieved {result.data[0].observationCount} hourly measurements")
 ```
 
 ### Convert to DataFrame
