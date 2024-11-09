@@ -66,13 +66,12 @@ def test_invalid_station(client):
         client.get_observations(request)
     assert "API request failed" in str(exc_info.value)
 
-def test_invalid_api_key():
+def test_invalid_api_key(monkeypatch):
     """Test handling of invalid API key."""
     with pytest.raises(ValueError, match="No API key provided"):
         # Ensure environment variable is not set
-        with pytest.MonkeyPatch() as mp:
-            mp.delenv("NVE_API_KEY", raising=False)
-            NVEHydroAPIClient(api_key=None)
+        monkeypatch.delenv("NVE_API_KEY", raising=False)
+        NVEHydroAPIClient(api_key=None)
 
 def test_observations_to_dataframe(client):
     """Test conversion of observations to DataFrame."""
