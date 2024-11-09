@@ -81,8 +81,14 @@ def test_observations():
         print(f"No series information available for station {station_id}")
         return
         
-    # Parse series list - could be either a comma-separated string or already a list
-    available_parameters = set(series_list if isinstance(series_list, list) else series_list.split(','))
+    # Parse series list - extract parameter IDs from the series list
+    if isinstance(series_list, str):
+        available_parameters = set(series_list.split(','))
+    elif isinstance(series_list, list):
+        available_parameters = set(str(series.get('parameter')) for series in series_list)
+    else:
+        print(f"Unexpected series_list type: {type(series_list)}")
+        return
     
     for parameter, param_name in parameters_to_test:
         if parameter not in available_parameters:
