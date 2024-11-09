@@ -251,7 +251,7 @@ class NVEHydroAPIClient:
             "X-API-Key": load_api_key(api_key)
         }
 
-    def _get(self, endpoint: str, params: dict = None) -> Optional[Dict[str, Any]]:
+    def _get(self, endpoint: str, params: dict = None) -> Dict[str, Any]:
         """
         Make a GET request to the API endpoint.
         
@@ -260,32 +260,51 @@ class NVEHydroAPIClient:
             params: Optional query parameters
             
         Returns:
-            JSON response as dictionary or None if request fails
+            JSON response as dictionary
+            
+        Raises:
+            APIError: If the API request fails
+            AuthenticationError: If authentication fails
         """
         url = f"{self.server_url}{endpoint}"
         try:
             response = requests.get(url, headers=self.headers, params=params)
             response.raise_for_status()
             return response.json()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                raise AuthenticationError("Invalid API key") from e
+            raise APIError(f"API request failed: {str(e)}") from e
         except requests.RequestException as e:
-            logger.error(f"GET request failed for {url}: {str(e)}")
-            if hasattr(e.response, 'text'):
-                logger.error(f"Response text: {e.response.text}")
-            return None
+            raise APIError(f"Request failed: {str(e)}") from e
 
         
-    def _post(self, endpoint: str, data: dict = None):
+    def _post(self, endpoint: str, data: dict = None) -> Dict[str, Any]:
+        """
+        Make a POST request to the API endpoint.
+        
+        Args:
+            endpoint: API endpoint path
+            data: Request body data
+            
+        Returns:
+            JSON response as dictionary
+            
+        Raises:
+            APIError: If the API request fails
+            AuthenticationError: If authentication fails
+        """
         url = f"{self.server_url}{endpoint}"
         try:
             response = requests.post(url, headers=self.headers, json=data)
             response.raise_for_status()
-            #print("Response JSON:", response.json())  # Print the entire response for inspection
             return response.json()
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                raise AuthenticationError("Invalid API key") from e
+            raise APIError(f"API request failed: {str(e)}") from e
         except requests.RequestException as e:
-            print(f"Error occurred: {e}")
-            if response is not None:
-                print("Server response:", response.text)
-            return None
+            raise APIError(f"Request failed: {str(e)}") from e
 
     # Endpoint: Get Parameters
     def get_parameters(self) -> Optional[ParametersResult]:
