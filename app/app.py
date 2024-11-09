@@ -28,8 +28,8 @@ def get_stations():
                 'river': station.riverName
             }
             for station in stations.data
-            if hasattr(station, 'seriesList') and 
-            ('1000' in station.seriesList or '1001' in station.seriesList)
+            if station.seriesList and 
+            any(param in str(station.seriesList) for param in ['1000', '1001'])
         ]
         return jsonify(station_list)
     return jsonify([])
