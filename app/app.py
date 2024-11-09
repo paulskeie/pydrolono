@@ -1,4 +1,9 @@
-from flask import Flask, render_template, jsonify, request
+from flask import (
+    Flask,
+    render_template,
+    jsonify,
+    request,
+)
 from pydrolono.client import NVEHydroAPIClient, ObservationsRequest
 from datetime import datetime, timedelta
 
