@@ -55,10 +55,10 @@ start_time = end_time - timedelta(days=1)
 reference_time = f"{start_time.isoformat()}/{end_time.isoformat()}"
 
 request = ObservationsRequest(
-    stationId="12.209.0",  # Example station
+    stationId="62.5.0",    # Bulken station in Vossovassdraget
     parameter="1000",      # Water level
     resolutionTime="60",   # Hourly data
-    referenceTime=reference_time
+    referenceTime="2014-10-27T00:00:00/2014-10-29T23:59:59"  # October 2014 flood
 )
 
 result = client.get_observations(request)
