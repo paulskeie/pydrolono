@@ -2,7 +2,7 @@ from flask import (
     Flask,
     render_template,
     jsonify,
-    request,
+    request as flask_request
 )
 from pydrolono.client import NVEHydroAPIClient, ObservationsRequest
 from datetime import datetime, timedelta
@@ -36,8 +36,8 @@ def get_stations():
 
 @app.route('/api/observations')
 def get_observations():
-    station_id = request.args.get('station')
-    date_str = request.args.get('date')
+    station_id = flask_request.args.get('station')
+    date_str = flask_request.args.get('date')
     
     if not station_id or not date_str:
         return jsonify({'error': 'Missing parameters'}), 400
