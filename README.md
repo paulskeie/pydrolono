@@ -75,6 +75,27 @@ if result and result.data:
     print(df.head())
 ```
 
+## Interactive Demo App
+
+The package includes a Flask web application that demonstrates the usage of pydrolono in a real-world context. The demo app provides:
+
+- Interactive station search with autocomplete
+- Station information display
+- Time series visualization of water level and discharge data
+- Responsive plotting using Plotly.js
+
+To run the demo app:
+
+```bash
+# Install Flask if not already installed
+pip install flask
+
+# Start the Flask development server
+python app/app.py
+```
+
+Then open your web browser to http://localhost:5000 to explore Norwegian hydrological data through an interactive interface.
+
 ## Authentication
 
 The client requires an API key from NVE. You can provide it in two ways:
