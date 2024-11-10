@@ -15,7 +15,12 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/paulskeie/pydrolono",
-    packages=find_packages(),
+    project_urls={
+        "Bug Tracker": "https://github.com/paulskeie/pydrolono/issues",
+        "Documentation": "https://github.com/paulskeie/pydrolono#readme",
+        "Source Code": "https://github.com/paulskeie/pydrolono",
+    },
+    packages=find_packages(exclude=["tests*"]),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
